@@ -9,15 +9,16 @@
           <img :src="logoUrl">
         </footer>
       </div>
-      <div class="column is-one-quarter history-column" :style="{ 'background-color': config.sidebarBgColor, 'color': config.sidebarFontColor }">
+      <div class="column is-one-quarter history-column"
+        :style="{ 'background-color': config.sidebarBgColor, 'color': config.sidebarFontColor }">
         <header>
           <h2 class="title" :style="{ 'color': config.sidebarFontColor }">
-            {{ 'history.title'|trans }}
+            {{ 'history.title' | trans }}
           </h2>
           <history :messages="messages" v-if="lastMessage" :fontColor="config.sidebarFontColor"></history>
         </header>
         <footer :style="{ 'background-color': config.clockBgColor, 'color': config.clockFontColor }">
-          <clock :locale="config.locale" :dateFormat="'date_format'|trans" :fontColor="config.clockFontColor"></clock>
+          <clock :locale="config.locale" :dateFormat="'date_format' | trans" :fontColor="config.clockFontColor"></clock>
         </footer>
       </div>
     </div>
@@ -25,46 +26,57 @@
 </template>
 
 <script>
-  import Clock from '@/components/Clock.vue'
-  import Featured from '@/components/Featured.vue'
-  import History from '@/components/History.vue'
-  import audio from '@/services/audio'
+import Clock from '@/components/Clock.vue'
+import Featured from '@/components/Featured.vue'
+import History from '@/components/History.vue'
+import audio from '@/services/audio'
+import speak from '@/services/speech'
+import { log } from '@/util/functions'
 
-  export default {
-    name: 'Default',
-    components: {
-      Clock,
-      Featured,
-      History
+export default {
+  name: 'Default',
+  components: {
+    Clock,
+    Featured,
+    History
+  },
+  computed: {
+    messages () {
+      return this.$store.getters.history
     },
-    computed: {
-      messages () {
-        return this.$store.getters.history
-      },
-      lastMessage () {
-        return this.$store.getters.message
-      },
-      config () {
-        return this.$store.state.config
-      },
-      logoUrl () {
-        return this.config.logo || 'static/images/logo.png'
-      },
-      pageBgColor () {
-        const peso = this.lastMessage.$data ? this.lastMessage.$data.peso : 1
-        return peso > 0 ? this.config.pageBgColorPriority : this.config.pageBgColorNormal
-      },
-      pageFontColor () {
-        const peso = this.lastMessage.$data ? this.lastMessage.$data.peso : 1
-        return peso > 0 ? this.config.pageFontColorPriority : this.config.pageFontColorNormal
-      }
+    lastMessage () {
+      return this.$store.getters.message
     },
-    methods: {
-      playAudio () {
-        audio.playAlert(this.config.alert)
-      }
+    config () {
+      return this.$store.state.config
+    },
+    logoUrl () {
+      return this.config.logo || 'static/images/logo.png'
+    },
+    pageBgColor () {
+      const peso = this.lastMessage.$data ? this.lastMessage.$data.peso : 1
+      return peso > 0 ? this.config.pageBgColorPriority : this.config.pageBgColorNormal
+    },
+    pageFontColor () {
+      const peso = this.lastMessage.$data ? this.lastMessage.$data.peso : 1
+      return peso > 0 ? this.config.pageFontColorPriority : this.config.pageFontColorNormal
+    }
+  },
+  methods: {
+    playAudio () {
+      audio.playAlert(this.config.alert)
+      const lang = this.config.locale || 'pt-BR'
+      const pass = ['Senha']
+      const talking = pass.concat(this.$store.getters.message.falar)
+
+      speak.speechAll([talking.join(' ')], lang).then(() => {
+        log('Testing end')
+      }, (e) => {
+        log('Testing error', e)
+      })
     }
   }
+}
 </script>
 
 <style lang="sass">

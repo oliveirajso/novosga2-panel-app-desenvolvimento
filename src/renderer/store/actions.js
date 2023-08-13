@@ -2,12 +2,16 @@ import { Client } from '@/services/api'
 import storage from '@/services/storage'
 
 function normalizeMessage (data) {
+  const talking = [data.prioridade, (data.siglaSenha + ('000' + data.numeroSenha).slice(-3)), data.local, data.numeroLocal]
   return {
     id: data.id,
     type: 'ticket',
     title: data.siglaSenha + ('000' + data.numeroSenha).slice(-3),
     subtitle: data.local + ' ' + ('00' + data.numeroLocal).slice(-2),
     description: data.prioridade,
+    local: data.local,
+    numeroLocal: ('00' + data.numeroLocal).slice(-2),
+    falar: talking,
     $data: data
   }
 }
