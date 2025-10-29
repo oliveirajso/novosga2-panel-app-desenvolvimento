@@ -67,6 +67,7 @@
                       <option value="en">English</option>
                       <option value="es">Español</option>
                       <option value="pt_BR">Português (Brasil)</option>
+                      <option value="pt_PT">Português</option>
                     </select>
                   </span>
                   <span class="icon is-left">
